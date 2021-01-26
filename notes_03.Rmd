@@ -256,7 +256,7 @@ ggplot(data = mn_homes,
 
       - Change the color of the points to green.
       - Change `alpha` to make the points more transparent.
-      - Add labels for the x axis, y axis, and the color of the points.
+      - Add labels for the x axis, y axis.
       - Add an informative title.
 
 When you are finished, remove `eval = FALSE` and knit the file to see the 
