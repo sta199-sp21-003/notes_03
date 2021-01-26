@@ -266,7 +266,7 @@ changes.
 ggplot(data = mn_homes, 
        mapping = aes(x = lotsize, y = salesprice)) + 
    geom_point(color = "______") + 
-   labs(title = "______", color = "______", x = "______", y = "______")
+   labs(title = "______", x = "______", y = "______")
 ```
 
 (2) Modify the code outline to make the changes described below.
