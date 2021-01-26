@@ -264,7 +264,7 @@ changes.
 
 ```{r modify-scatterplot, eval = FALSE}
 ggplot(data = mn_homes, 
-       mapping = aes(x = lotsize, y = salesprice, color = community)) + 
+       mapping = aes(x = lotsize, y = salesprice)) + 
    geom_point(color = "______") + 
    labs(title = "______", color = "______", x = "______", y = "______")
 ```
