@@ -1,0 +1,339 @@
+---
+title: "Data visualization I"
+author: ""
+date: ""
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Main Ideas
+
+- Data visualization is an **extremely** effective way to express information 
+  and extract meaning from data.
+- We can build up an effective visualization systematically, layer by layer, 
+  using a grammar of graphics (`ggplot2`).
+
+"The simple graph has brought more information to the data analyst's mind than 
+any other device" - John Tukey
+
+# Lecture notes and exercises
+
+Before we start, we need to configure git so that RStudio can 
+communicate with GitHub. This requires two pieces of information: your email
+address and your GitHub username.
+
+Type the following lines of code in the **console** in RStudio, filling in your
+username and the email address associated with your GitHub account.
+
+```{r eval = FALSE}
+library(usethis)
+use_git_config(user.name= "github username", user.email="your email")
+```
+
+Next, load the `tidyverse` package. Recall, a package is just a bundle of 
+shareable code.
+
+```{r message = FALSE}
+library(tidyverse)
+```
+
+Exploratory data analysis (EDA) is an approach to analyzing datasets in order to
+summarize the main characteristics, often with visual representations of the 
+data. We can also calculate summary statistics and perform data 
+wrangling, manipulation, and transformation.
+
+We will use `ggplot2` to construct visualizations. The gg in `ggplot2` stands 
+for "grammar of graphics", a system or framework that allows us to describe the 
+components of a graphic, building up an effective visualization layer by layer.
+
+## Minneapolis housing data
+
+We will introduce visualization using data on single-family homes sold in 
+Minneapolis, Minnesota between 2005 and 2015.
+
+**Question:** What happens when you click the green arrow in the code chunk
+below? What changes in the "Environment" pane?
+
+```{r load-data, message = FALSE}
+mn_homes <- read_csv("data/mn_homes.csv")
+```
+
+```{r glimpse-data}
+glimpse(mn_homes)
+```
+
+**Question:** What does each row represent? Each column?
+
+Each row is a single-family home sold in Minneapolis, Minnesota; each column 
+is a variable or feature related to the home.
+
+### First visualization
+
+`ggplot()` creates the initial base coordinate system that we will add layers 
+to. We first specify the dataset we will use with `data = mn_homes`. The 
+`mapping` argument is paired with an aesthetic (`aes`), which tells us how the 
+variables in our dataset should be mapped to the visual properties of the graph.
+
+**Question:** What does the code chunk below do?
+
+```{r base-layer}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice))
+```
+
+```{r add-points}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point()
+```
+
+```{r add-smooth}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point() + 
+   geom_smooth()
+```
+
+Run `?geom_smooth` in the console. What does this function do?
+
+```{r add-labels}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point() + 
+   geom_smooth() +
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)")
+```
+
+The procedure used to construct plots can be summarized using the code below.
+
+```{r eval = FALSE}
+ggplot(data = [dataset], 
+       mapping = aes(x = [x-variable], y = [y-variable])) +
+   geom_xxx() +
+   geom_xxx() + 
+   other options
+```
+
+**Question:** What do you think `eval = FALSE` is doing in the code chunk above?
+
+Chunk option `eval = FALSE` will include the code in the knitted document, but
+the code will not be evaluated.
+
+## Aesthetics
+
+An aesthetic is a visual property of one of the objects in your plot.
+
+- shape
+- color
+- size
+- alpha (transparency)
+
+We can map a variable in our dataset to a color, a size, a transparency, and 
+so on.
+
+**Question:** What will the visualization look like below? Write your answer 
+down before running the code.
+
+```{r aesthetic-1}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice,
+                     color = fireplace)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)")
+```
+
+**Question:** What about this one?
+
+```{r aesthetic-2}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice,
+                     shape = fireplace)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)")
+```
+
+**Question:** This one?
+
+```{r aesthetic-3}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice,
+                     color = fireplace,
+                     size = lotsize)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)")
+```
+
+**Question:** Are the above visualizations effective? Why or why not? How might
+you improve them?
+
+Color is one of the most effective tools at highlighting differences. Shape and
+size and much more difficult to differentiate. The guide at
+https://github.com/GraphicsPrinciples/CheatSheet/blob/master/NVSCheatSheet.pdf
+discusses many of these considerations and what makes a good visualization.
+
+**Question:** What is the difference between the two plots below?
+
+The location of `color = "blue"`.
+
+```{r compare-plots}
+ggplot(data = mn_homes) + 
+  geom_point(mapping = aes(x = area, y = salesprice, color = "blue"))
+
+ggplot(data = mn_homes) + 
+  geom_point(mapping = aes(x = area, y = salesprice), color = "blue")
+```
+
+Use `aes` to map variables to plot features, use arguments in `geom_xxx` for
+customization not mapped to a variable.
+
+Mapping in the `ggplot` function is global, meaning they apply to every layer
+we add. Mapping in a particular `geom_xxx` function treats the mappings as 
+local.
+
+**Question:** Create a scatterplot using variables of your choosing using the 
+`mn_homes` data.
+
+```{r scatterplot}
+ggplot(mn_homes, mapping = aes(x = lotsize, y = salesprice)) +
+   geom_point() +
+   labs(x = "Lot size", y = "Selling price")
+```
+
+**Question:** Modify your scatterplot above by coloring the points for each
+community.
+
+```{r scatterplot-community}
+ggplot(mn_homes, mapping = aes(x = lotsize, y = salesprice, color = community)) +
+   geom_point() +
+   labs(x = "Lot size", y = "Selling price", color = "Community")
+```
+
+## Faceting
+
+We can use smaller plots to display different subsets of the data using 
+faceting. This is helpful to examine conditional relationships.
+
+Let's try a few simple examples of faceting. Note that these plots should be 
+improved by careful consideration of labels, aesthetics, etc.
+
+```{r facet-1}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)") + 
+   facet_grid(. ~ beds)
+```
+
+```{r facet-2}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)") + 
+   facet_grid(beds ~ .)
+```
+
+```{r facet-3}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)") + 
+   facet_grid(beds ~ baths)
+```
+
+```{r facet-4}
+ggplot(data = mn_homes, 
+       mapping = aes(x = area, y = salesprice)) + 
+   geom_point() + 
+   labs(title = "Sales price vs. area of homes in Minneapolis, MN",
+        x = "Area (square feet)", y = "Sales Price (dollars)") + 
+   facet_wrap(~ community)
+```
+
+`facet_grid()`
+
+- 2d grid
+- rows ~ cols
+- use . for no plot
+
+`facet_wrap()`
+
+- 1d ribbon wrapped into 2d
+
+## Practice
+
+(1) Modify the code outline to make the changes described below.
+
+      - Change the color of the points to green.
+      - Change `alpha` to make the points more transparent.
+      - Add labels for the x axis, y axis.
+      - Add an informative title.
+
+When you are finished, remove `eval = FALSE` and knit the file to see the 
+changes.
+
+```{r modify-scatterplot, eval = FALSE}
+ggplot(data = mn_homes, 
+       mapping = aes(x = lotsize, y = salesprice)) + 
+   geom_point(color = "darkgreen", alpha = 0.5) + 
+   labs(title = "Sales price vs. lot size", 
+        x = "Lot size", y = "Sale price ($)")
+```
+
+(2) Modify the code outline to make the changes described below.
+
+      - Create a histogram of `lotsize`.
+      - Modify the histogram by adding `fill = "green"` inside the 
+        `geom_histogram()` function. 
+      - Modify the histogram by adding `color = "red"` inside the 
+        `geom_histogram()` function.
+
+When you are finished, remove `eval = FALSE` and knit the file to see the 
+changes. What is the difference between the `color` and `fill` arguments?
+
+`fill` colors the area of the object, `color` colors the border of the
+rectangles. For geometries that have an area, this is how `fill` and `color`
+function.
+
+```{r modify-histogram, eval = FALSE}
+ggplot(data = mn_homes, 
+       mapping = aes(x = lotsize)) +
+  geom_histogram(fill = "darkgreen", color = "red") +
+  labs(title = "Most homes have a lot size between 5,000 and 7,500", 
+       x = "Lot size", y = "Count")
+```
+
+
+(3) Develop an effective visualization on your own using the code chunk provided
+    below. Use three variables and at least one aesthetic mapping.
+
+```{r on-your-own}
+ggplot(mn_homes, mapping = aes(x = reorder(community, -salesprice, median), 
+                               y = salesprice)) +
+   geom_boxplot(fill = "purple", alpha = 0.5) +
+   labs(x = "Community in Minneapolis", y = "Sale price ($)",
+        title = "Why is Calhoun-Isles so expensive?")
+```
+
+Here I am using `reorder()` to sort the boxplots by their median values in
+descending order. This allows for much easier comparisons compared to when
+they are sorted alphabetically by community.
+
+
+## Additional Resources
+
+- https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-visualization-2.1.pdf
+- https://github.com/GraphicsPrinciples/CheatSheet/blob/master/NVSCheatSheet.pdf
+- https://ggplot2.tidyverse.org/
+- http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
+- https://medium.com/bbc-visual-and-data-journalism/how-the-bbc-visual-and-data-journalism-team-works-with-graphics-in-r-ed0b35693535
+- https://ggplot2-book.org/
+- https://ggplot2.tidyverse.org/reference/geom_histogram.html
+- https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
